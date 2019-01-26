@@ -1,0 +1,45 @@
+---
+# Base task for configuring a Pi
+
+- name: 'Transfer init scripts'
+  become: yes
+  become_method: sudo
+  copy:
+    src: ./
+    dest: /home/pi/init/
+    mode: 0755
+
+- name: 'Thin out Raspbian'
+  become: yes
+  become_method: sudo
+  shell: /home/pi/init/anti-raspbian-bloat.sh
+
+- name: 'Update apt cache/dist'
+  apt:
+    upgrade: dist
+    update_cache: yes
+  become: yes
+  become_method: sudo
+
+- name: 'Configure locale'
+  become: yes
+  become_method: sudo
+  shell: /home/pi/init/configure-locale.sh
+
+- name: 'Set timezone'
+  become: yes
+  become_method: sudo
+  shell: /home/pi/init/set-timezone.sh
+
+- name: 'Set keyboard layout'
+  become: yes
+  become_method: sudo
+  shell: /home/pi/init/set-keyboard-layout.sh
+
+- name: 'Reboot'
+  become: yes
+  become_method: sudo
+  command: shutdown -r now "Ansible updates triggered"
+  async: 0
+  poll: 0
+  ignore_errors: true
